@@ -327,6 +327,15 @@ impl RendezvousServer {
                         return send_rk_res(socket, addr, TOO_FREQUENT).await;
                     }
                     let peer = self.pm.get_or(&id).await;
+
+                    if !authorize_connection::check_machine_id(base64::encode(rk.uuid.clone())).await {
+                        return send_rk_res(socket, addr, UUID_MISMATCH).await;
+                    }
+
+                    if peer.read().await.disabled {
+                        return send_rk_res(socket, addr, UUID_MISMATCH).await;
+                    }
+
                     let (changed, ip_changed) = {
                         let peer = peer.read().await;
                         if peer.uuid.is_empty() {
@@ -675,7 +684,7 @@ impl RendezvousServer {
         }
         let id = ph.id;
 
-        if !authorize_connection::check_authorization(ph.token) {
+        if !authorize_connection::check_authorization(ph.token).await {
             let mut msg_out = RendezvousMessage::new();
             msg_out.set_punch_hole_response(PunchHoleResponse {
                 failure: punch_hole_response::Failure::ID_NOT_EXIST.into(),
