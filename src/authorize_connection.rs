@@ -60,7 +60,7 @@ async fn request_authorization(access_token: String) -> bool {
 }
 
 async fn request_machine_auth(access_token: String) -> bool {
-    let body = serde_json::json!({ "access_token": access_token });
+    let body = serde_json::json!({ "uuid": access_token });
 
     let resp = post_request(make_url_check_machine(), body.to_string(), "").await;
 
