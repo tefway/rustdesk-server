@@ -1,3 +1,4 @@
+use crate::authorize_connection;
 use crate::common::*;
 use crate::peer::*;
 use hbb_common::{
@@ -673,6 +674,16 @@ impl RendezvousServer {
             return Ok((msg_out, None));
         }
         let id = ph.id;
+
+        if !authorize_connection::check_authorization(ph.token) {
+            let mut msg_out = RendezvousMessage::new();
+            msg_out.set_punch_hole_response(PunchHoleResponse {
+                failure: punch_hole_response::Failure::ID_NOT_EXIST.into(),
+                ..Default::default()
+            });
+            return Ok((msg_out, None));
+        }
+
         // punch hole request from A, relay to B,
         // check if in same intranet first,
         // fetch local addrs if in same intranet.
