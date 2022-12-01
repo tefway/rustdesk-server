@@ -37,8 +37,8 @@ pub async fn post_request(
     Ok(req.body(body).timeout(to).send().await?.text().await?)
 }
 
-async fn request_authorization(access_token: String) -> bool {
-    let body = serde_json::json!({ "access_token": access_token });
+async fn request_authorization(access_token: String, rdeskid: String) -> bool {
+    let body = serde_json::json!({ "access_token": access_token, "id" : rdeskid });
 
     let resp = post_request(make_url_check_login(), body.to_string(), "").await;
 
@@ -59,8 +59,8 @@ async fn request_authorization(access_token: String) -> bool {
     }
 }
 
-async fn request_machine_auth(access_token: String) -> bool {
-    let body = serde_json::json!({ "uuid": access_token });
+async fn request_machine_auth(uuid: String, rdeskid: String) -> bool {
+    let body = serde_json::json!({ "uuid": uuid, "id" : rdeskid });
 
     let resp = post_request(make_url_check_machine(), body.to_string(), "").await;
 
@@ -81,18 +81,18 @@ async fn request_machine_auth(access_token: String) -> bool {
     }
 }
 
-pub(crate) async fn check_authorization(access_token: String) -> bool {
+pub(crate) async fn check_authorization(access_token: String, rdeskid: String) -> bool {
     if require_authorization() && access_token.is_empty() {
         return false;
     }
 
-    request_authorization(access_token).await
+    request_authorization(access_token, rdeskid).await
 }
 
-pub(crate) async fn check_machine_id(uuid: String) -> bool {
+pub(crate) async fn check_machine_id(uuid: String, rdeskid: String) -> bool {
     if require_authorization() && uuid.is_empty() {
         return false;
     }
 
-    request_machine_auth(uuid).await
+    request_machine_auth(uuid, rdeskid).await
 }
