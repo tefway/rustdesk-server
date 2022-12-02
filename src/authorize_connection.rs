@@ -1,18 +1,21 @@
 use hbb_common::log;
 use reqwest;
-
 use serde::Deserialize;
 
 pub(crate) fn require_authorization() -> bool {
     true
 }
 
+fn get_check_login_server() -> String {
+    return std::env::var("CHECK_LOGIN_URL").unwrap_or("http://172.17.0.1:8000".to_string());
+}
+
 fn make_url_check_login() -> String {
-    return format!("{}/api/check_login", "http://172.17.0.1:8000");
+    return format!("{}/api/check_login", get_check_login_server());
 }
 
 fn make_url_check_machine() -> String {
-    return format!("{}/api/check_machine", "http://172.17.0.1:8000");
+    return format!("{}/api/check_machine", get_check_login_server());
 }
 
 #[derive(Deserialize, Debug)]
